@@ -1,0 +1,12 @@
+#version 460
+#extension GL_GOOGLE_include_directive : enable
+#include "common.glsl"
+
+layout(location = 0) rayPayloadInEXT HitPayload payLoad;
+hitAttributeEXT vec3 attribs;
+
+void main()
+{
+    payLoad.count[0] = payLoad.count[0] + 1;
+    ignoreIntersectionEXT;
+}

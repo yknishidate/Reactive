@@ -42,8 +42,12 @@ void main()
         10000.0,
         0     // payloadLocation
     );
-    imageStore(outputImage, ivec2(gl_LaunchIDEXT.xy), 
+
+    if(pushConstants.left){
+        imageStore(outputImage, ivec2(gl_LaunchIDEXT.xy), 
                vec4(countToColor(payLoad.count[0]), 1.0));
+    }else{
     imageStore(outputImage, ivec2(gl_LaunchIDEXT.x + gl_LaunchSizeEXT.x, gl_LaunchIDEXT.y), 
-               vec4(countToColor(payLoad.count[1]), 1.0));
+               vec4(countToColor(payLoad.count[0]), 1.0));
+    }
 }

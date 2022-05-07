@@ -3,7 +3,7 @@
 #include "Loader.hpp"
 #include "Window.hpp"
 
-const float distanceEyes = 0.1;
+static const float distanceEyes = 0.1;
 
 struct BufferAddress
 {

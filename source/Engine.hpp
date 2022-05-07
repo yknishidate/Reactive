@@ -18,6 +18,7 @@ struct PushConstants
     glm::mat4 InvProj{ 1 };
     int Frame = 0;
     int NumMeshes = 0;
+    bool Left = false;
 };
 
 class Engine
@@ -31,8 +32,8 @@ private:
     Image outputImage;
     Image denoisedImage;
     ComputePipeline meanPipeline;
-    ComputePipeline medianPipeline;
     RayTracingPipeline rtPipeline;
+    RayTracingPipeline stereoPipeline;
     PushConstants pushConstants;
     std::unique_ptr<Scene> scene;
     bool useRayAlign = false;

@@ -12,6 +12,8 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
+static const float distanceEyes = 0.1;
+
 namespace
 {
     void CopyImages(vk::CommandBuffer commandBuffer, int width, int height,
@@ -84,6 +86,11 @@ void Engine::Init()
                            "../shader/ray_align/ray_align.rchit",
                            "../shader/ray_align/ray_align.rahit");
 
+    stereoPipeline.LoadShaders("../shader/ray_align/stereo.rgen",
+                               "../shader/ray_align/ray_align.rmiss",
+                               "../shader/ray_align/ray_align.rchit",
+                               "../shader/ray_align/stereo.rahit");
+
     rtPipeline.Register("inputImage", inputImage);
     rtPipeline.Register("outputImage", outputImage);
     rtPipeline.Register("samplers", outputImage); // Dummy
@@ -92,10 +99,13 @@ void Engine::Init()
     rtPipeline.Register("Addresses", scene->GetAddressBuffer());
     rtPipeline.Setup(sizeof(PushConstants));
 
-    medianPipeline.LoadShaders("../shader/denoise/median.comp");
-    medianPipeline.Register("inputImage", outputImage);
-    medianPipeline.Register("outputImage", denoisedImage);
-    medianPipeline.Setup(sizeof(PushConstants));
+    stereoPipeline.Register("inputImage", inputImage);
+    stereoPipeline.Register("outputImage", outputImage);
+    stereoPipeline.Register("samplers", outputImage); // Dummy
+    stereoPipeline.Register("topLevelAS", scene->GetAccel());
+    stereoPipeline.Register("samplers", scene->GetTextures());
+    stereoPipeline.Register("Addresses", scene->GetAddressBuffer());
+    stereoPipeline.Setup(sizeof(PushConstants));
 
     // Create push constants
     pushConstants.InvProj = glm::inverse(scene->GetCamera().GetProj());
@@ -123,11 +133,7 @@ void Engine::Run()
         int width = Window::GetWidth();
         int height = Window::GetHeight();
         scene->Update(0.1);
-        if (useRayAlign) {
-            scene->GetCamera().SetViewSize(width / 2, height);
-        } else {
-            scene->GetCamera().SetViewSize(width, height);
-        }
+        scene->GetCamera().SetViewSize(width / 2, height);
 
         // Update push constants
         scene->ProcessInput();
@@ -148,14 +154,12 @@ void Engine::Run()
             if (useRayAlign) {
                 rtPipeline.Run(commandBuffer, width / 2, height, &pushConstants);
             } else {
-                rtPipeline.Run(commandBuffer, width, height, &pushConstants);
+                pushConstants.Left = true;
+                stereoPipeline.Run(commandBuffer, width / 2, height, &pushConstants);
+                pushConstants.Left = false;
+                stereoPipeline.Run(commandBuffer, width / 2, height, &pushConstants);
             }
-            if (denoise) {
-                medianPipeline.Run(commandBuffer, width, height, &pushConstants);
-                CopyImages(commandBuffer, width, height, inputImage.GetImage(), outputImage.GetImage(), denoisedImage.GetImage(), Window::GetBackImage());
-            } else {
-                CopyImages(commandBuffer, width, height, inputImage.GetImage(), outputImage.GetImage(), Window::GetBackImage());
-            }
+            CopyImages(commandBuffer, width, height, inputImage.GetImage(), outputImage.GetImage(), Window::GetBackImage());
 
             Window::RenderUI();
             Window::Submit();
