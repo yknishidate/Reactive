@@ -17,6 +17,7 @@ public:
     bool CheckDirtyAndClean();
     glm::mat4 GetView() const;
     glm::mat4 GetProj() const;
+    glm::vec3 GetRight() const;
 
 private:
     glm::vec3 position = { 0.0f, 0.0f, 5.0f };

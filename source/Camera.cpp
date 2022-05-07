@@ -56,6 +56,12 @@ glm::mat4 Camera::GetProj() const
     return glm::perspective(glm::radians(45.0f), aspect, 0.01f, 10000.0f);
 }
 
+glm::vec3 Camera::GetRight() const
+{
+    glm::vec3 right = glm::normalize(glm::cross(-glm::vec3{ 0, 1, 0 }, front));
+    return right;
+}
+
 bool Camera::CheckDirtyAndClean()
 {
     if (dirty) {

@@ -17,15 +17,10 @@ Scene::Scene(const std::string& filepath)
     objects.resize(meshes.size() * 2);
     for (int i = 0; i < meshes.size(); i++) {
         objects[i].Init(meshes[i]);
-        //objects[i].GetTransform().Position.y = 1.0;
-        //objects[i].GetTransform().Scale = glm::vec3{ 0.01 };
-        //objects[i].GetTransform().Rotation = glm::quat{ glm::vec3{ 0, glm::radians(90.0f), 0 } };
     }
     for (int i = 0; i < meshes.size(); i++) {
         objects[i + meshes.size()].Init(meshes[i]);
-        objects[i + meshes.size()].GetTransform().Position.x = 0.5;
-        //objects[i].GetTransform().Scale = glm::vec3{ 0.01 };
-        //objects[i].GetTransform().Rotation = glm::quat{ glm::vec3{ 0, glm::radians(90.0f), 0 } };
+        objects[i + meshes.size()].GetTransform().Position += camera.GetRight();
     }
 }
 
@@ -63,10 +58,8 @@ void Scene::Update(float dt)
 {
     static float time = 0.0f;
     time += dt;
-    for (int i = 0; i < objects.size(); i++) {
-        objects[i].GetTransform().Rotation = glm::quat{ glm::vec3(0.0f, time * 0.1, 0.0f) };
-        objectData[i].Matrix = objects[i].GetTransform().GetMatrix();
-        objectData[i].NormalMatrix = objects[i].GetTransform().GetNormalMatrix();
+    for (int i = 0; i < meshes.size(); i++) {
+        objects[i + meshes.size()].GetTransform().Position = camera.GetRight();
     }
     objectBuffer.Copy(objectData.data());
     topAccel.Rebuild(objects);
