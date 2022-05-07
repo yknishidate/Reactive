@@ -143,6 +143,7 @@ void Loader::LoadFromFile(const std::string& filepath,
     }
 
     // load texture
+    spdlog::info("  textures: {}", texCount);
     textures.resize(texCount);
     for (auto&& [name, index] : textureNames) {
         std::string path = name;
@@ -152,6 +153,7 @@ void Loader::LoadFromFile(const std::string& filepath,
         textures[index].Init(path);
     }
 
+    spdlog::info("  meshes: {}", shapes.size());
     for (const auto& shape : shapes) {
         std::vector<Vertex> vertices{};
         std::vector<uint32_t> indices{};
