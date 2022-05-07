@@ -35,4 +35,5 @@ private:
     RayTracingPipeline rtPipeline;
     PushConstants pushConstants;
     std::unique_ptr<Scene> scene;
+    bool useRayAlign = false;
 };

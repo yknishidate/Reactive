@@ -3,7 +3,7 @@
 
 void Camera::Init(int width, int height)
 {
-    aspect = float(width) / height;
+    SetViewSize(width, height);
 }
 
 void Camera::ProcessInput()
@@ -60,6 +60,11 @@ glm::vec3 Camera::GetRight() const
 {
     glm::vec3 right = glm::normalize(glm::cross(-glm::vec3{ 0, 1, 0 }, front));
     return right;
+}
+
+void Camera::SetViewSize(int width, int height)
+{
+    aspect = float(width) / height;
 }
 
 bool Camera::CheckDirtyAndClean()

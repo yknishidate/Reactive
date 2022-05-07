@@ -72,7 +72,11 @@ void Engine::Init()
 
     //scene = std::make_unique<Scene>("../asset/crytek_sponza/sponza.obj");
     scene = std::make_unique<Scene>("../asset/CornellBox.obj");
-    scene->Setup(Window::GetWidth() / 2, Window::GetHeight());
+    if (useRayAlign) {
+        scene->Setup(Window::GetWidth() / 2, Window::GetHeight());
+    } else {
+        scene->Setup(Window::GetWidth(), Window::GetHeight());
+    }
 
     // Create pipelines
     rtPipeline.LoadShaders("../shader/ray_align/ray_align.rgen",
@@ -111,11 +115,19 @@ void Engine::Run()
         Window::StartFrame();
 
         ImGui::Checkbox("Accumulation", &accumulation);
+        ImGui::Checkbox("Ray align", &useRayAlign);
         ImGui::Combo("Denoise", &denoise, "Off\0Median\0");
         ImGui::Render();
 
         // Scene update
+        int width = Window::GetWidth();
+        int height = Window::GetHeight();
         scene->Update(0.1);
+        if (useRayAlign) {
+            scene->GetCamera().SetViewSize(width / 2, height);
+        } else {
+            scene->GetCamera().SetViewSize(width, height);
+        }
 
         // Update push constants
         scene->ProcessInput();
@@ -132,10 +144,12 @@ void Engine::Run()
             Window::WaitNextFrame();
             Window::BeginCommandBuffer();
 
-            int width = Window::GetWidth();
-            int height = Window::GetHeight();
             vk::CommandBuffer commandBuffer = Window::GetCurrentCommandBuffer();
-            rtPipeline.Run(commandBuffer, width / 2, height, &pushConstants);
+            if (useRayAlign) {
+                rtPipeline.Run(commandBuffer, width / 2, height, &pushConstants);
+            } else {
+                rtPipeline.Run(commandBuffer, width, height, &pushConstants);
+            }
             if (denoise) {
                 medianPipeline.Run(commandBuffer, width, height, &pushConstants);
                 CopyImages(commandBuffer, width, height, inputImage.GetImage(), outputImage.GetImage(), denoisedImage.GetImage(), Window::GetBackImage());
