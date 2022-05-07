@@ -6,7 +6,7 @@ int main()
     try {
         spdlog::set_pattern("[%^%l%$] %v");
 
-        Window::Init(1920, 1080, "../asset/Vulkan.png");
+        Window::Init(2048, 1024, "../asset/Vulkan.png");
         Vulkan::Init();
         Window::SetupUI();
 

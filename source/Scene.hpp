@@ -19,7 +19,7 @@ class Scene
 {
 public:
     explicit Scene(const std::string& filepath);
-    void Setup();
+    void Setup(int width, int height);
     void Update(float dt);
     void ProcessInput();
     const std::shared_ptr<Mesh>& AddMesh(const std::string& filepath);
@@ -28,6 +28,7 @@ public:
     vk::AccelerationStructureKHR GetAccel() const { return topAccel.GetAccel(); }
     const std::vector<Image>& GetTextures() const { return textures; }
     const Buffer& GetAddressBuffer() const { return addressBuffer; }
+    const std::vector<std::shared_ptr<Mesh>>& GetMeshes() const { return meshes; }
     Camera& GetCamera() { return camera; }
     std::vector<Object>& GetObjects() { return objects; }
 

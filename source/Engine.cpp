@@ -72,7 +72,7 @@ void Engine::Init()
 
     //scene = std::make_unique<Scene>("../asset/crytek_sponza/sponza.obj");
     scene = std::make_unique<Scene>("../asset/CornellBox.obj");
-    scene->Setup();
+    scene->Setup(Window::GetWidth() / 2, Window::GetHeight());
 
     // Create pipelines
     rtPipeline.LoadShaders("../shader/ray_align/ray_align.rgen",
@@ -97,6 +97,7 @@ void Engine::Init()
     pushConstants.InvProj = glm::inverse(scene->GetCamera().GetProj());
     pushConstants.InvView = glm::inverse(scene->GetCamera().GetView());
     pushConstants.Frame = 0;
+    pushConstants.NumMeshes = scene->GetMeshes().size();
 }
 
 void Engine::Run()
@@ -134,7 +135,7 @@ void Engine::Run()
             int width = Window::GetWidth();
             int height = Window::GetHeight();
             vk::CommandBuffer commandBuffer = Window::GetCurrentCommandBuffer();
-            rtPipeline.Run(commandBuffer, width, height, &pushConstants);
+            rtPipeline.Run(commandBuffer, width / 2, height, &pushConstants);
             if (denoise) {
                 medianPipeline.Run(commandBuffer, width, height, &pushConstants);
                 CopyImages(commandBuffer, width, height, inputImage.GetImage(), outputImage.GetImage(), denoisedImage.GetImage(), Window::GetBackImage());

@@ -13,7 +13,8 @@ struct HitPayload
     vec3 emittion;
     vec3 brdf;
     bool done;
-    int count;
+    ivec2 count;
+    vec2 minT;
 };
 
 struct MeshAddress
@@ -51,4 +52,5 @@ layout(push_constant) uniform PushConstants{
     mat4 invView;
     mat4 invProj;
     int frame;
+    int numMeshes;
 } pushConstants;

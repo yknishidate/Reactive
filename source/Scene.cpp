@@ -3,6 +3,8 @@
 #include "Loader.hpp"
 #include "Window.hpp"
 
+const float distanceEyes = 0.1;
+
 struct BufferAddress
 {
     vk::DeviceAddress vertices;
@@ -20,11 +22,11 @@ Scene::Scene(const std::string& filepath)
     }
     for (int i = 0; i < meshes.size(); i++) {
         objects[i + meshes.size()].Init(meshes[i]);
-        objects[i + meshes.size()].GetTransform().Position += camera.GetRight();
+        objects[i + meshes.size()].GetTransform().Position += camera.GetRight() * distanceEyes;
     }
 }
 
-void Scene::Setup()
+void Scene::Setup(int width, int height)
 {
     topAccel.Init(objects, vk::GeometryFlagBitsKHR::eNoDuplicateAnyHitInvocation);
 
@@ -51,7 +53,7 @@ void Scene::Setup()
     addressBuffer.InitOnHost(sizeof(BufferAddress) * addresses.size(), vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eShaderDeviceAddress);
     addressBuffer.Copy(addresses.data());
 
-    camera.Init(Window::GetWidth(), Window::GetHeight());
+    camera.Init(width, height);
 }
 
 void Scene::Update(float dt)
@@ -59,7 +61,7 @@ void Scene::Update(float dt)
     static float time = 0.0f;
     time += dt;
     for (int i = 0; i < meshes.size(); i++) {
-        objects[i + meshes.size()].GetTransform().Position = camera.GetRight();
+        objects[i + meshes.size()].GetTransform().Position = camera.GetRight() * distanceEyes;
     }
     objectBuffer.Copy(objectData.data());
     topAccel.Rebuild(objects);
