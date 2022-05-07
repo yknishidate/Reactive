@@ -14,10 +14,16 @@ Scene::Scene(const std::string& filepath)
 {
     Loader::LoadFromFile(filepath, meshes, textures);
 
-    objects.resize(meshes.size());
+    objects.resize(meshes.size() * 2);
     for (int i = 0; i < meshes.size(); i++) {
         objects[i].Init(meshes[i]);
         //objects[i].GetTransform().Position.y = 1.0;
+        //objects[i].GetTransform().Scale = glm::vec3{ 0.01 };
+        //objects[i].GetTransform().Rotation = glm::quat{ glm::vec3{ 0, glm::radians(90.0f), 0 } };
+    }
+    for (int i = 0; i < meshes.size(); i++) {
+        objects[i + meshes.size()].Init(meshes[i]);
+        objects[i + meshes.size()].GetTransform().Position.x = 0.5;
         //objects[i].GetTransform().Scale = glm::vec3{ 0.01 };
         //objects[i].GetTransform().Rotation = glm::quat{ glm::vec3{ 0, glm::radians(90.0f), 0 } };
     }
