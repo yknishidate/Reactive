@@ -57,6 +57,7 @@ Scene::Scene(const std::string& filepath)
 void Scene::Setup(int width, int height)
 {
     topAccels[0].Init(objects[0], vk::GeometryFlagBitsKHR::eNoDuplicateAnyHitInvocation);
+    topAccels[1].Init(objects[1], vk::GeometryFlagBitsKHR::eNoDuplicateAnyHitInvocation);
 
     // Create object data
     for (auto&& object : objects) {

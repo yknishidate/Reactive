@@ -40,9 +40,6 @@ void Camera::ProcessInput()
         position.y -= 0.05f;
         dirty = true;
     }
-
-    spdlog::info("pos: {}", glm::to_string(position));
-    spdlog::info("yaw: {}", yaw);
 }
 
 glm::mat4 Camera::GetView() const
