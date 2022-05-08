@@ -12,8 +12,6 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
-static const float distanceEyes = 0.1;
-
 namespace
 {
     void CopyImages(vk::CommandBuffer commandBuffer, int width, int height,
@@ -95,7 +93,7 @@ void Engine::Init()
     pushConstants.InvProj = glm::inverse(scene->camera.GetProj());
     pushConstants.InvView = glm::inverse(scene->camera.GetView());
     pushConstants.Frame = 0;
-    pushConstants.NumMeshes = 1;
+    pushConstants.NumFaces = scene->numFaces;
 }
 
 void Engine::Run()

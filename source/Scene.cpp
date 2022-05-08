@@ -3,7 +3,7 @@
 #include "Loader.hpp"
 #include "Window.hpp"
 
-static const float distanceEyes = 0.1;
+static const float distanceEyes = 0.0;
 
 struct BufferAddress
 {
@@ -18,8 +18,14 @@ Scene::Scene(const std::string& filepath)
     std::vector<uint32_t> indices;
     Loader::LoadFromFile(filepath, vertices, indices);
 
+    numFaces = indices.size() / 3;
+
+    std::vector<uint32_t> indices2;
+    indices2.insert(indices2.end(), indices.begin(), indices.end());
+    indices2.insert(indices2.end(), indices.begin(), indices.end());
+
     meshes[0] = std::make_shared<Mesh>(vertices, indices);
-    meshes[1] = std::make_shared<Mesh>(vertices, indices);
+    meshes[1] = std::make_shared<Mesh>(vertices, indices2);
     objects[0].Init(meshes[0]);
     objects[1].Init(meshes[1]);
 

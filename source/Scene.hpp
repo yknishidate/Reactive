@@ -34,4 +34,6 @@ public:
 
     Buffer objectBuffer;
     Buffer addressBuffer;
+
+    int numFaces = 0;
 };

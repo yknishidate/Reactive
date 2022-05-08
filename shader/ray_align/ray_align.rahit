@@ -7,7 +7,7 @@ hitAttributeEXT vec3 attribs;
 
 void main()
 {
-    int group = gl_InstanceID / pushConstants.numMeshes;
+    int group = gl_PrimitiveID / pushConstants.numFaces;
     payLoad.count[group] = payLoad.count[group] + 1;
     ignoreIntersectionEXT;
 }

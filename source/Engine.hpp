@@ -17,7 +17,7 @@ struct PushConstants
     glm::mat4 InvView{ 1 };
     glm::mat4 InvProj{ 1 };
     int Frame = 0;
-    int NumMeshes = 0;
+    int NumFaces = 0;
     int Left = 1;
 };
 
