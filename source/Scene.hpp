@@ -23,8 +23,6 @@ public:
     void Update(float dt);
     void ProcessInput();
 
-    vk::AccelerationStructureKHR GetAccel() const { return topAccel.GetAccel(); }
-    vk::AccelerationStructureKHR GetAccelStereo() const { return topAccelStereo.GetAccel(); }
     const Buffer& GetAddressBuffer() const { return addressBuffer; }
 
     std::shared_ptr<Mesh> meshes[2];

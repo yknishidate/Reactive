@@ -14,13 +14,14 @@ struct BufferAddress
 
 Scene::Scene(const std::string& filepath)
 {
-    std::vector<Vertex> verticesStereo;
-    std::vector<uint32_t> indicesStereo;
-    Loader::LoadFromFile(filepath, verticesStereo, indicesStereo);
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
+    Loader::LoadFromFile(filepath, vertices, indices);
 
-    meshes[0] = std::make_shared<Mesh>(verticesStereo, indicesStereo);
+    meshes[0] = std::make_shared<Mesh>(vertices, indices);
+    meshes[1] = std::make_shared<Mesh>(vertices, indices);
     objects[0].Init(meshes[0]);
-
+    objects[1].Init(meshes[1]);
 
     //// default
     //objectsStereo.resize(1);
@@ -56,7 +57,6 @@ Scene::Scene(const std::string& filepath)
 void Scene::Setup(int width, int height)
 {
     topAccels[0].Init(objects[0], vk::GeometryFlagBitsKHR::eNoDuplicateAnyHitInvocation);
-    //topAccelStereo.Init(objectsStereo, vk::GeometryFlagBitsKHR::eNoDuplicateAnyHitInvocation);
 
     // Create object data
     for (auto&& object : objects) {

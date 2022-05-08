@@ -79,25 +79,21 @@ void BottomAccel::Init(const Buffer& vertexBuffer, const Buffer& indexBuffer,
     BuildAccel(*accel, size, primitiveCount, geometryInfo);
 }
 
-void TopAccel::Init(const std::vector<Object>& objects, vk::GeometryFlagBitsKHR geomertyFlag)
+void TopAccel::Init(const Object& object, vk::GeometryFlagBitsKHR geomertyFlag)
 {
     this->geomertyFlag = geomertyFlag;
-    uint32_t primitiveCount = objects.size();
+    uint32_t primitiveCount = 1;
 
-    std::vector<vk::AccelerationStructureInstanceKHR> instances;
-    for (auto&& object : objects) {
-        vk::AccelerationStructureInstanceKHR instance;
-        instance.setTransform(object.GetTransform().GetVkMatrix());
-        instance.setMask(0xFF);
-        instance.setAccelerationStructureReference(object.GetMesh().GetAccel().GetBufferAddress());
-        instance.setFlags(vk::GeometryInstanceFlagBitsKHR::eTriangleFacingCullDisable);
-        instances.push_back(instance);
-    }
+    vk::AccelerationStructureInstanceKHR instance;
+    instance.setTransform(object.GetTransform().GetVkMatrix());
+    instance.setMask(0xFF);
+    instance.setAccelerationStructureReference(object.GetMesh().GetAccel().GetBufferAddress());
+    instance.setFlags(vk::GeometryInstanceFlagBitsKHR::eTriangleFacingCullDisable);
 
     instanceBuffer.InitOnHost(sizeof(vk::AccelerationStructureInstanceKHR) * primitiveCount,
                               vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR |
                               vk::BufferUsageFlagBits::eShaderDeviceAddress);
-    instanceBuffer.Copy(instances.data());
+    instanceBuffer.Copy(&instance);
 
     vk::AccelerationStructureGeometryInstancesDataKHR instancesData;
     instancesData.setArrayOfPointers(false);
@@ -119,11 +115,6 @@ void TopAccel::Init(const std::vector<Object>& objects, vk::GeometryFlagBitsKHR 
     buffer = CreateAccelBuffer(size, type, geometry);
     accel = CreateAccel(buffer.GetBuffer(), size, type);
     BuildAccel(*accel, size, primitiveCount, geometryInfo);
-}
-
-void TopAccel::Init(const Object& object, vk::GeometryFlagBitsKHR geomertyFlag)
-{
-    Init({ object }, geomertyFlag);
 }
 
 void TopAccel::Rebuild(const std::vector<Object>& objects)

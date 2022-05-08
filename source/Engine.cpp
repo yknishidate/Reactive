@@ -82,8 +82,8 @@ void Engine::Init()
     //scene->GetCamera().SetYaw(90.0f);
 
     scene = std::make_unique<Scene>("../asset/sponza/sponza.obj");
-    scene->GetCamera().SetPosition({ 1.8, -8.9, 0 });
-    scene->GetCamera().SetYaw(270);
+    scene->camera.SetPosition({ 1.8, -8.9, 0 });
+    scene->camera.SetYaw(270);
 
     if (useRayAlign) {
         scene->Setup(Window::GetWidth() / 2, Window::GetHeight());
@@ -105,22 +105,20 @@ void Engine::Init()
     rtPipeline.Register("inputImage", inputImage);
     rtPipeline.Register("outputImage", outputImage);
     rtPipeline.Register("samplers", outputImage); // Dummy
-    rtPipeline.Register("topLevelAS", scene->GetAccel());
-    rtPipeline.Register("samplers", scene->GetTextures());
+    rtPipeline.Register("topLevelAS", scene->topAccels[1].GetAccel());
     rtPipeline.Register("Addresses", scene->GetAddressBuffer());
     rtPipeline.Setup(sizeof(PushConstants));
 
     stereoPipeline.Register("inputImage", inputImage);
     stereoPipeline.Register("outputImage", outputImage);
     stereoPipeline.Register("samplers", outputImage); // Dummy
-    stereoPipeline.Register("topLevelAS", scene->GetAccelStereo());
-    stereoPipeline.Register("samplers", scene->GetTextures());
+    stereoPipeline.Register("topLevelAS", scene->topAccels[0].GetAccel());
     stereoPipeline.Register("Addresses", scene->GetAddressBuffer());
     stereoPipeline.Setup(sizeof(PushConstants));
 
     // Create push constants
-    pushConstants.InvProj = glm::inverse(scene->GetCamera().GetProj());
-    pushConstants.InvView = glm::inverse(scene->GetCamera().GetView());
+    pushConstants.InvProj = glm::inverse(scene->camera.GetProj());
+    pushConstants.InvView = glm::inverse(scene->camera.GetView());
     pushConstants.Frame = 0;
     pushConstants.NumMeshes = 1;
 }
@@ -144,13 +142,13 @@ void Engine::Run()
         int width = Window::GetWidth();
         int height = Window::GetHeight();
         scene->Update(0.1);
-        scene->GetCamera().SetViewSize(width / 2, height);
+        scene->camera.SetViewSize(width / 2, height);
 
         // Update push constants
         scene->ProcessInput();
-        pushConstants.InvProj = glm::inverse(scene->GetCamera().GetProj());
-        pushConstants.InvView = glm::inverse(scene->GetCamera().GetView());
-        if (!accumulation || scene->GetCamera().CheckDirtyAndClean()) {
+        pushConstants.InvProj = glm::inverse(scene->camera.GetProj());
+        pushConstants.InvView = glm::inverse(scene->camera.GetView());
+        if (!accumulation || scene->camera.CheckDirtyAndClean()) {
             pushConstants.Frame = 0;
         } else {
             pushConstants.Frame++;
