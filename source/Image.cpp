@@ -1,6 +1,7 @@
 #include "Image.hpp"
 #include "Buffer.hpp"
 #include <stb_image.h>
+#include <spdlog/spdlog.h>
 
 namespace
 {
@@ -77,7 +78,9 @@ void Image::Init(const std::string& filepath)
     int width, height, channels;
     unsigned char* data = stbi_load(filepath.c_str(), &width, &height, &channels, sizeof(unsigned char) * 4);
     if (!data) {
-        throw std::runtime_error("Failed to load texture: " + filepath);
+        Init(1, 1, vk::Format::eR8G8B8A8Unorm);
+        spdlog::error("Failed to load texture: {}", filepath);
+        return;
     }
 
     Init(width, height, vk::Format::eR8G8B8A8Unorm);

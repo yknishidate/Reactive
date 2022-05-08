@@ -1,10 +1,6 @@
 #include "Camera.hpp"
 #include "Input.hpp"
-
-void Camera::Init(int width, int height)
-{
-    SetViewSize(width, height);
-}
+#include <spdlog/spdlog.h>
 
 void Camera::ProcessInput()
 {
@@ -44,6 +40,9 @@ void Camera::ProcessInput()
         position.y -= 0.05f;
         dirty = true;
     }
+
+    spdlog::info("pos: {}", glm::to_string(position));
+    spdlog::info("yaw: {}", yaw);
 }
 
 glm::mat4 Camera::GetView() const
@@ -65,6 +64,20 @@ glm::vec3 Camera::GetRight() const
 void Camera::SetViewSize(int width, int height)
 {
     aspect = float(width) / height;
+}
+
+void Camera::SetPosition(glm::vec3 pos)
+{
+    position = pos;
+}
+
+void Camera::SetYaw(float yaw)
+{
+    this->yaw = yaw;
+    glm::mat4 rotation{ 1.0 };
+    rotation *= glm::rotate(glm::radians(yaw), glm::vec3{ 0, 1, 0 });
+    rotation *= glm::rotate(glm::radians(pitch), glm::vec3{ 1, 0, 0 });
+    front = { rotation * glm::vec4{ 0, 0, -1, 1 } };
 }
 
 bool Camera::CheckDirtyAndClean()

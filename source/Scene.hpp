@@ -22,24 +22,16 @@ public:
     void Setup(int width, int height);
     void Update(float dt);
     void ProcessInput();
-    const std::shared_ptr<Mesh>& AddMesh(const std::string& filepath);
-    const Object& AddObject(std::shared_ptr<Mesh> mesh);
 
     vk::AccelerationStructureKHR GetAccel() const { return topAccel.GetAccel(); }
-    const std::vector<Image>& GetTextures() const { return textures; }
+    vk::AccelerationStructureKHR GetAccelStereo() const { return topAccelStereo.GetAccel(); }
     const Buffer& GetAddressBuffer() const { return addressBuffer; }
-    const std::vector<std::shared_ptr<Mesh>>& GetMeshes() const { return meshes; }
-    Camera& GetCamera() { return camera; }
-    std::vector<Object>& GetObjects() { return objects; }
 
-private:
-    std::vector<std::shared_ptr<Mesh>> meshes;
-    std::vector<Image> textures;
-
-    std::vector<Object> objects;
+    std::shared_ptr<Mesh> meshes[2];
+    Object objects[2];
     std::vector<ObjectData> objectData;
 
-    TopAccel topAccel;
+    TopAccel topAccels[2];
     Camera camera;
 
     Buffer objectBuffer;

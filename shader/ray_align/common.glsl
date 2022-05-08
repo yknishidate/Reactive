@@ -53,5 +53,5 @@ layout(push_constant) uniform PushConstants{
     mat4 invProj;
     int frame;
     int numMeshes;
-    bool left;
+    int left;
 } pushConstants;

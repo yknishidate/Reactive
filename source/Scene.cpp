@@ -14,21 +14,49 @@ struct BufferAddress
 
 Scene::Scene(const std::string& filepath)
 {
-    Loader::LoadFromFile(filepath, meshes, textures);
+    std::vector<Vertex> verticesStereo;
+    std::vector<uint32_t> indicesStereo;
+    Loader::LoadFromFile(filepath, verticesStereo, indicesStereo);
 
-    objects.resize(meshes.size() * 2);
-    for (int i = 0; i < meshes.size(); i++) {
-        objects[i].Init(meshes[i]);
-    }
-    for (int i = 0; i < meshes.size(); i++) {
-        objects[i + meshes.size()].Init(meshes[i]);
-        objects[i + meshes.size()].GetTransform().Position += camera.GetRight() * distanceEyes;
-    }
+    meshes[0] = std::make_shared<Mesh>(verticesStereo, indicesStereo);
+    objects[0].Init(meshes[0]);
+
+
+    //// default
+    //objectsStereo.resize(1);
+    //objectsStereo[0].Init(meshStereo);
+
+    //// ray align
+    //std::vector<Vertex> vertices = verticesStereo;
+    //std::vector<uint32_t> indices = indicesStereo;
+    //vertices.resize(vertices.size() * 2);
+    //indices.resize(indices.size() * 2);
+    //for (int i = 0; i < verticesStereo.size(); i++) {
+    //    vertices[verticesStereo.size() + i] = verticesStereo[i];
+    //}
+    //for (int i = 0; i < indicesStereo.size(); i++) {
+    //    indices[indicesStereo.size() + i] = indicesStereo[i];
+    //}
+    //mesh = std::make_shared<Mesh>(vertices, indices);
+
+    //std::vector<Vertex> vertices;
+    //std::vector<uint32_t> indices;
+    //objects.resize(1);
+
+
+    //for (int i = 0; i < meshes.size(); i++) {
+    //    objects[i].Init(meshes[i]);
+    //}
+    //for (int i = 0; i < meshes.size(); i++) {
+    //    objects[i + meshes.size()].Init(meshes[i]);
+    //    objects[i + meshes.size()].GetTransform().Position += camera.GetRight() * distanceEyes;
+    //}
 }
 
 void Scene::Setup(int width, int height)
 {
-    topAccel.Init(objects, vk::GeometryFlagBitsKHR::eNoDuplicateAnyHitInvocation);
+    topAccels[0].Init(objects[0], vk::GeometryFlagBitsKHR::eNoDuplicateAnyHitInvocation);
+    //topAccelStereo.Init(objectsStereo, vk::GeometryFlagBitsKHR::eNoDuplicateAnyHitInvocation);
 
     // Create object data
     for (auto&& object : objects) {
@@ -44,44 +72,26 @@ void Scene::Setup(int width, int height)
     objectBuffer.Copy(objectData.data());
 
     // Buffer references
-    std::vector<BufferAddress> addresses(objects.size());
-    for (int i = 0; i < objects.size(); i++) {
-        addresses[i].vertices = objects[i].GetMesh().GetVertexBufferAddress();
-        addresses[i].indices = objects[i].GetMesh().GetIndexBufferAddress();
-        addresses[i].objects = objectBuffer.GetAddress();
-    }
-    addressBuffer.InitOnHost(sizeof(BufferAddress) * addresses.size(), vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eShaderDeviceAddress);
-    addressBuffer.Copy(addresses.data());
+    BufferAddress address;
+    address.vertices = objects[0].GetMesh().GetVertexBufferAddress();
+    address.indices = objects[0].GetMesh().GetIndexBufferAddress();
+    address.objects = objectBuffer.GetAddress();
+    addressBuffer.InitOnHost(sizeof(BufferAddress), vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eShaderDeviceAddress);
+    addressBuffer.Copy(&address);
 
-    camera.Init(width, height);
+    camera.SetViewSize(width, height);
 }
 
 void Scene::Update(float dt)
 {
     static float time = 0.0f;
     time += dt;
-    for (int i = 0; i < meshes.size(); i++) {
-        objects[i + meshes.size()].GetTransform().Position = camera.GetRight() * distanceEyes;
-    }
+    objects[0].GetTransform().Position = camera.GetRight() * distanceEyes;
     objectBuffer.Copy(objectData.data());
-    topAccel.Rebuild(objects);
+    topAccels[0].Rebuild({ objects[0] });
 }
 
 void Scene::ProcessInput()
 {
     camera.ProcessInput();
-}
-
-const std::shared_ptr<Mesh>& Scene::AddMesh(const std::string& filepath)
-{
-    meshes.push_back(std::make_shared<Mesh>(filepath));
-    return meshes.back();
-}
-
-const Object& Scene::AddObject(std::shared_ptr<Mesh> mesh)
-{
-    Object object;
-    object.Init(mesh);
-    objects.push_back(object);
-    return objects.back();
 }

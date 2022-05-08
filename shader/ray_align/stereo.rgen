@@ -29,6 +29,8 @@ void main()
 
     vec3 lightDir = normalize(vec3(1, -1, 1));
     vec3 color = vec3(0.0);
+
+    // Left
     traceRayEXT(
         topLevelAS,
         gl_RayFlagsSkipClosestHitShaderEXT,
@@ -42,12 +44,28 @@ void main()
         10000.0,
         0     // payloadLocation
     );
-
-    if(pushConstants.left){
+    if(pushConstants.left == 1){
         imageStore(outputImage, ivec2(gl_LaunchIDEXT.xy), 
-               vec4(countToColor(payLoad.count[0]), 1.0));
+            vec4(countToColor(payLoad.count[0]), 1.0));
     }else{
-    imageStore(outputImage, ivec2(gl_LaunchIDEXT.x + gl_LaunchSizeEXT.x, gl_LaunchIDEXT.y), 
-               vec4(countToColor(payLoad.count[0]), 1.0));
+        imageStore(outputImage, ivec2(gl_LaunchIDEXT.x + gl_LaunchSizeEXT.x, gl_LaunchIDEXT.y), 
+                   vec4(countToColor(payLoad.count[0]), 1.0));
     }
+
+//    // Right
+//    payLoad.count = ivec2(0, 0);
+//    traceRayEXT(
+//        topLevelAS,
+//        gl_RayFlagsSkipClosestHitShaderEXT,
+//        0xff, // cullMask
+//        0,    // sbtRecordOffset
+//        0,    // sbtRecordStride
+//        0,    // missIndex
+//        origin.xyz,
+//        0.001,
+//        direction.xyz,
+//        10000.0,
+//        0     // payloadLocation
+//    );
+//
 }

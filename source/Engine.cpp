@@ -73,7 +73,18 @@ void Engine::Init()
     denoisedImage.Init(Window::GetWidth(), Window::GetHeight(), vk::Format::eB8G8R8A8Unorm);
 
     //scene = std::make_unique<Scene>("../asset/crytek_sponza/sponza.obj");
-    scene = std::make_unique<Scene>("../asset/CornellBox.obj");
+    //scene = std::make_unique<Scene>("../asset/CornellBox.obj");
+    //scene = std::make_unique<Scene>("../asset/mitsuba/mitsuba.obj");
+    //scene->GetCamera().SetPosition({ 0, -0.9, 5 });
+
+    //scene = std::make_unique<Scene>("../asset/fireplace_room/fireplace_room.obj");
+    //scene->GetCamera().SetPosition({ 5.0, -1.0, -1.5 });
+    //scene->GetCamera().SetYaw(90.0f);
+
+    scene = std::make_unique<Scene>("../asset/sponza/sponza.obj");
+    scene->GetCamera().SetPosition({ 1.8, -8.9, 0 });
+    scene->GetCamera().SetYaw(270);
+
     if (useRayAlign) {
         scene->Setup(Window::GetWidth() / 2, Window::GetHeight());
     } else {
@@ -102,7 +113,7 @@ void Engine::Init()
     stereoPipeline.Register("inputImage", inputImage);
     stereoPipeline.Register("outputImage", outputImage);
     stereoPipeline.Register("samplers", outputImage); // Dummy
-    stereoPipeline.Register("topLevelAS", scene->GetAccel());
+    stereoPipeline.Register("topLevelAS", scene->GetAccelStereo());
     stereoPipeline.Register("samplers", scene->GetTextures());
     stereoPipeline.Register("Addresses", scene->GetAddressBuffer());
     stereoPipeline.Setup(sizeof(PushConstants));
@@ -111,7 +122,7 @@ void Engine::Init()
     pushConstants.InvProj = glm::inverse(scene->GetCamera().GetProj());
     pushConstants.InvView = glm::inverse(scene->GetCamera().GetView());
     pushConstants.Frame = 0;
-    pushConstants.NumMeshes = scene->GetMeshes().size();
+    pushConstants.NumMeshes = 1;
 }
 
 void Engine::Run()
@@ -151,12 +162,16 @@ void Engine::Run()
             Window::BeginCommandBuffer();
 
             vk::CommandBuffer commandBuffer = Window::GetCurrentCommandBuffer();
+            vk::ClearColorValue clearColor;
+            vk::ImageSubresourceRange range{ vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1 };
+            commandBuffer.clearColorImage(outputImage.GetImage(), vk::ImageLayout::eGeneral, clearColor, range);
+
             if (useRayAlign) {
                 rtPipeline.Run(commandBuffer, width / 2, height, &pushConstants);
             } else {
-                pushConstants.Left = true;
+                pushConstants.Left = 1;
                 stereoPipeline.Run(commandBuffer, width / 2, height, &pushConstants);
-                pushConstants.Left = false;
+                pushConstants.Left = 0;
                 stereoPipeline.Run(commandBuffer, width / 2, height, &pushConstants);
             }
             CopyImages(commandBuffer, width, height, inputImage.GetImage(), outputImage.GetImage(), Window::GetBackImage());

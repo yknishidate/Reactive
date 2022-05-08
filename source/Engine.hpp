@@ -18,7 +18,7 @@ struct PushConstants
     glm::mat4 InvProj{ 1 };
     int Frame = 0;
     int NumMeshes = 0;
-    bool Left = false;
+    int Left = 1;
 };
 
 class Engine
