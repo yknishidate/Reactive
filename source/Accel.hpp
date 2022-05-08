@@ -19,9 +19,14 @@ class BottomAccel : public Accel
 public:
     void Init(const Buffer& vertexBuffer, const Buffer& indexBuffer,
               size_t vertexCount, size_t primitiveCount, vk::GeometryFlagBitsKHR geomertyFlag);
-
+    void Rebuild() const;
 private:
-
+    vk::AccelerationStructureGeometryTrianglesDataKHR triangleData;
+    vk::AccelerationStructureGeometryKHR geometry;
+    vk::AccelerationStructureTypeKHR type = vk::AccelerationStructureTypeKHR::eBottomLevel;
+    vk::AccelerationStructureBuildGeometryInfoKHR geometryInfo;
+    vk::DeviceSize size;
+    size_t primitiveCount;
 };
 
 class TopAccel : public Accel

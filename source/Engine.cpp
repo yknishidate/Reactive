@@ -45,18 +45,18 @@ void Engine::Init()
     inputImage.Init(Window::GetWidth(), Window::GetHeight(), vk::Format::eB8G8R8A8Unorm);
     outputImage.Init(Window::GetWidth(), Window::GetHeight(), vk::Format::eB8G8R8A8Unorm);
 
-    //scene = std::make_unique<Scene>("../asset/crytek_sponza/sponza.obj");
-    //scene = std::make_unique<Scene>("../asset/CornellBox.obj");
+    scene = std::make_unique<Scene>("../asset/CornellBox.obj");
+
     //scene = std::make_unique<Scene>("../asset/mitsuba/mitsuba.obj");
-    //scene->GetCamera().SetPosition({ 0, -0.9, 5 });
+    //scene->camera.SetPosition({ 0, -0.9, 5 });
 
     //scene = std::make_unique<Scene>("../asset/fireplace_room/fireplace_room.obj");
-    //scene->GetCamera().SetPosition({ 5.0, -1.0, -1.5 });
-    //scene->GetCamera().SetYaw(90.0f);
+    //scene->camera.SetPosition({ 5.0, -1.0, -1.5 });
+    //scene->camera.SetYaw(90.0f);
 
-    scene = std::make_unique<Scene>("../asset/sponza/sponza.obj");
-    scene->camera.SetPosition({ 1.8, -8.9, 0 });
-    scene->camera.SetYaw(270);
+    //scene = std::make_unique<Scene>("../asset/sponza/sponza.obj");
+    //scene->camera.SetPosition({ 1.8, -8.9, 0 });
+    //scene->camera.SetYaw(270);
 
     if (useRayAlign) {
         scene->Setup(Window::GetWidth() / 2, Window::GetHeight());
@@ -118,6 +118,9 @@ void Engine::Run()
         pushConstants.InvProj = glm::inverse(scene->camera.GetProj());
         pushConstants.InvView = glm::inverse(scene->camera.GetView());
         pushConstants.Frame = 0;
+
+        scene->meshes[0]->Rebuild();
+        scene->meshes[1]->Rebuild();
 
         // Render
         if (!Window::IsMinimized()) {

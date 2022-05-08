@@ -53,7 +53,7 @@ void BottomAccel::Init(const Buffer& vertexBuffer, const Buffer& indexBuffer,
                        size_t vertexCount, size_t primitiveCount,
                        vk::GeometryFlagBitsKHR geomertyFlag)
 {
-    vk::AccelerationStructureGeometryTrianglesDataKHR triangleData;
+    this->primitiveCount = primitiveCount;
     triangleData.setVertexFormat(vk::Format::eR32G32B32Sfloat);
     triangleData.setVertexData(vertexBuffer.GetAddress());
     triangleData.setVertexStride(sizeof(Vertex));
@@ -61,21 +61,23 @@ void BottomAccel::Init(const Buffer& vertexBuffer, const Buffer& indexBuffer,
     triangleData.setIndexType(vk::IndexType::eUint32);
     triangleData.setIndexData(indexBuffer.GetAddress());
 
-    vk::AccelerationStructureGeometryKHR geometry;
     geometry.setGeometryType(vk::GeometryTypeKHR::eTriangles);
     geometry.setGeometry({ triangleData });
     geometry.setFlags(geomertyFlag);
 
-    vk::AccelerationStructureTypeKHR type = vk::AccelerationStructureTypeKHR::eBottomLevel;
 
-    vk::AccelerationStructureBuildGeometryInfoKHR geometryInfo;
     geometryInfo.setType(type);
     geometryInfo.setFlags(vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace);
     geometryInfo.setGeometries(geometry);
 
-    vk::DeviceSize size = GetAccelSize(geometryInfo, primitiveCount);
+    size = GetAccelSize(geometryInfo, primitiveCount);
     buffer = CreateAccelBuffer(size, type, geometry);
     accel = CreateAccel(buffer.GetBuffer(), size, type);
+    BuildAccel(*accel, size, primitiveCount, geometryInfo);
+}
+
+void BottomAccel::Rebuild() const
+{
     BuildAccel(*accel, size, primitiveCount, geometryInfo);
 }
 
