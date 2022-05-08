@@ -37,30 +37,6 @@ namespace
         Image::SetImageLayout(commandBuffer, inputImage, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eGeneral);
         Image::SetImageLayout(commandBuffer, backImage, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eColorAttachmentOptimal);
     }
-
-    void CopyImages(vk::CommandBuffer commandBuffer, int width, int height,
-                    vk::Image inputImage, vk::Image outputImage, vk::Image denoisedImage, vk::Image backImage)
-    {
-        // denoised -> back
-        // output -> input
-        vk::ImageCopy copyRegion;
-        copyRegion.setSrcSubresource({ vk::ImageAspectFlagBits::eColor, 0, 0, 1 });
-        copyRegion.setDstSubresource({ vk::ImageAspectFlagBits::eColor, 0, 0, 1 });
-        copyRegion.setExtent({ uint32_t(width), uint32_t(height), 1 });
-
-        Image::SetImageLayout(commandBuffer, denoisedImage, vk::ImageLayout::eGeneral, vk::ImageLayout::eTransferSrcOptimal);
-        Image::SetImageLayout(commandBuffer, outputImage, vk::ImageLayout::eGeneral, vk::ImageLayout::eTransferSrcOptimal);
-        Image::SetImageLayout(commandBuffer, inputImage, vk::ImageLayout::eGeneral, vk::ImageLayout::eTransferDstOptimal);
-        Image::SetImageLayout(commandBuffer, backImage, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
-
-        Image::CopyImage(commandBuffer, denoisedImage, backImage, copyRegion);
-        Image::CopyImage(commandBuffer, outputImage, inputImage, copyRegion);
-
-        Image::SetImageLayout(commandBuffer, denoisedImage, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eGeneral);
-        Image::SetImageLayout(commandBuffer, outputImage, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eGeneral);
-        Image::SetImageLayout(commandBuffer, inputImage, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eGeneral);
-        Image::SetImageLayout(commandBuffer, backImage, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eColorAttachmentOptimal);
-    }
 }
 
 void Engine::Init()
@@ -70,7 +46,6 @@ void Engine::Init()
     // Create resources
     inputImage.Init(Window::GetWidth(), Window::GetHeight(), vk::Format::eB8G8R8A8Unorm);
     outputImage.Init(Window::GetWidth(), Window::GetHeight(), vk::Format::eB8G8R8A8Unorm);
-    denoisedImage.Init(Window::GetWidth(), Window::GetHeight(), vk::Format::eB8G8R8A8Unorm);
 
     //scene = std::make_unique<Scene>("../asset/crytek_sponza/sponza.obj");
     //scene = std::make_unique<Scene>("../asset/CornellBox.obj");
@@ -125,17 +100,13 @@ void Engine::Init()
 
 void Engine::Run()
 {
-    static bool accumulation = false;
-    static int denoise = 0;
     spdlog::info("Engine::Run()");
     while (!Window::ShouldClose()) {
         Window::PollEvents();
         Input::Update();
         Window::StartFrame();
 
-        ImGui::Checkbox("Accumulation", &accumulation);
         ImGui::Checkbox("Ray align", &useRayAlign);
-        ImGui::Combo("Denoise", &denoise, "Off\0Median\0");
         ImGui::Render();
 
         // Scene update
@@ -148,11 +119,7 @@ void Engine::Run()
         scene->ProcessInput();
         pushConstants.InvProj = glm::inverse(scene->camera.GetProj());
         pushConstants.InvView = glm::inverse(scene->camera.GetView());
-        if (!accumulation || scene->camera.CheckDirtyAndClean()) {
-            pushConstants.Frame = 0;
-        } else {
-            pushConstants.Frame++;
-        }
+        pushConstants.Frame = 0;
 
         // Render
         if (!Window::IsMinimized()) {

@@ -30,8 +30,6 @@ public:
 private:
     Image inputImage;
     Image outputImage;
-    Image denoisedImage;
-    ComputePipeline meanPipeline;
     RayTracingPipeline rtPipeline;
     RayTracingPipeline stereoPipeline;
     PushConstants pushConstants;
