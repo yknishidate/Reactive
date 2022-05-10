@@ -20,22 +20,22 @@ namespace
         return buildSizes.accelerationStructureSize;
     }
 
-    Buffer CreateAccelBuffer(vk::DeviceSize size,
-                             vk::AccelerationStructureTypeKHR type,
-                             vk::AccelerationStructureGeometryKHR geometry)
+    DeviceBuffer CreateAccelBuffer(vk::DeviceSize size,
+                                   vk::AccelerationStructureTypeKHR type,
+                                   vk::AccelerationStructureGeometryKHR geometry)
     {
-        Buffer buffer;
-        buffer.InitOnDevice(size,
-                            vk::BufferUsageFlagBits::eAccelerationStructureStorageKHR |
-                            vk::BufferUsageFlagBits::eShaderDeviceAddress);
+        DeviceBuffer buffer;
+        buffer.Init(vk::BufferUsageFlagBits::eAccelerationStructureStorageKHR |
+                    vk::BufferUsageFlagBits::eShaderDeviceAddress, size);
         return buffer;
     }
 
     void BuildAccel(vk::AccelerationStructureKHR accel, vk::DeviceSize size, uint32_t primitiveCount,
                     vk::AccelerationStructureBuildGeometryInfoKHR geometryInfo)
     {
-        Buffer scratchBuffer;
-        scratchBuffer.InitOnDevice(size, vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eShaderDeviceAddress);
+        DeviceBuffer scratchBuffer;
+        scratchBuffer.Init(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eShaderDeviceAddress,
+                           size);
 
         geometryInfo.setScratchData(scratchBuffer.GetAddress());
         geometryInfo.setDstAccelerationStructure(accel);
@@ -49,7 +49,7 @@ namespace
     }
 }
 
-void BottomAccel::Init(const Buffer& vertexBuffer, const Buffer& indexBuffer,
+void BottomAccel::Init(const DeviceBuffer& vertexBuffer, const DeviceBuffer& indexBuffer,
                        size_t vertexCount, size_t primitiveCount,
                        vk::GeometryFlagBitsKHR geomertyFlag)
 {
@@ -64,7 +64,6 @@ void BottomAccel::Init(const Buffer& vertexBuffer, const Buffer& indexBuffer,
     geometry.setGeometryType(vk::GeometryTypeKHR::eTriangles);
     geometry.setGeometry({ triangleData });
     geometry.setFlags(geomertyFlag);
-
 
     geometryInfo.setType(type);
     geometryInfo.setFlags(vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace);
@@ -92,9 +91,10 @@ void TopAccel::Init(const Object& object, vk::GeometryFlagBitsKHR geomertyFlag)
     instance.setAccelerationStructureReference(object.GetMesh().GetAccel().GetBufferAddress());
     instance.setFlags(vk::GeometryInstanceFlagBitsKHR::eTriangleFacingCullDisable);
 
-    instanceBuffer.InitOnHost(sizeof(vk::AccelerationStructureInstanceKHR) * primitiveCount,
-                              vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR |
-                              vk::BufferUsageFlagBits::eShaderDeviceAddress);
+    instanceBuffer.Init(vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR |
+                        vk::BufferUsageFlagBits::eTransferDst |
+                        vk::BufferUsageFlagBits::eShaderDeviceAddress,
+                        sizeof(vk::AccelerationStructureInstanceKHR) * primitiveCount);
     instanceBuffer.Copy(&instance);
 
     vk::AccelerationStructureGeometryInstancesDataKHR instancesData;

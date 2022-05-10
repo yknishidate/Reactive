@@ -89,17 +89,20 @@ void Scene::Setup(int width, int height)
         int texIndex = object.GetMesh().GetMaterial().DiffuseTexture;
         objectData.push_back({ matrix, normalMatrix, glm::vec4(diffuse, 1), texIndex });
     }
-    objectBuffer.InitOnHost(sizeof(ObjectData) * objectData.size(),
-                            vk::BufferUsageFlagBits::eStorageBuffer |
-                            vk::BufferUsageFlagBits::eShaderDeviceAddress);
-    objectBuffer.Copy(objectData.data());
+    objectBuffer.Init(vk::BufferUsageFlagBits::eStorageBuffer |
+                      vk::BufferUsageFlagBits::eTransferDst |
+                      vk::BufferUsageFlagBits::eShaderDeviceAddress,
+                      objectData);
 
     // Buffer references
     BufferAddress address;
     address.vertices = objects[0].GetMesh().GetVertexBufferAddress();
     address.indices = objects[0].GetMesh().GetIndexBufferAddress();
     address.objects = objectBuffer.GetAddress();
-    addressBuffer.InitOnHost(sizeof(BufferAddress), vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eShaderDeviceAddress);
+    addressBuffer.Init(vk::BufferUsageFlagBits::eStorageBuffer |
+                       vk::BufferUsageFlagBits::eTransferDst |
+                       vk::BufferUsageFlagBits::eShaderDeviceAddress,
+                       sizeof(BufferAddress));
     addressBuffer.Copy(&address);
 }
 

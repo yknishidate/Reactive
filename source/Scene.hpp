@@ -23,7 +23,7 @@ public:
     void Update(float dt);
     void ProcessInput();
 
-    const Buffer& GetAddressBuffer() const { return addressBuffer; }
+    const DeviceBuffer& GetAddressBuffer() const { return addressBuffer; }
 
     std::shared_ptr<Mesh> meshes[2];
     Object objects[2];
@@ -32,8 +32,8 @@ public:
     TopAccel topAccels[2];
     Camera camera;
 
-    Buffer objectBuffer;
-    Buffer addressBuffer;
+    DeviceBuffer objectBuffer;
+    DeviceBuffer addressBuffer;
 
     int numFaces = 0;
 };

@@ -11,13 +11,13 @@ public:
 
 protected:
     vk::UniqueAccelerationStructureKHR accel;
-    Buffer buffer;
+    DeviceBuffer buffer;
 };
 
 class BottomAccel : public Accel
 {
 public:
-    void Init(const Buffer& vertexBuffer, const Buffer& indexBuffer,
+    void Init(const DeviceBuffer& vertexBuffer, const DeviceBuffer& indexBuffer,
               size_t vertexCount, size_t primitiveCount, vk::GeometryFlagBitsKHR geomertyFlag);
     void Rebuild() const;
 private:
@@ -36,6 +36,6 @@ public:
     void Rebuild(const std::vector<Object>& objects);
 
 private:
-    Buffer instanceBuffer;
+    DeviceBuffer instanceBuffer;
     vk::GeometryFlagBitsKHR geomertyFlag;
 };

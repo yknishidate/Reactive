@@ -445,12 +445,12 @@ void RayTracingPipeline::Setup(size_t pushSize)
     // Create shader binding table
     vk::BufferUsageFlags usage =
         vk::BufferUsageFlagBits::eShaderBindingTableKHR |
-        vk::BufferUsageFlagBits::eTransferSrc |
+        vk::BufferUsageFlagBits::eTransferDst |
         vk::BufferUsageFlagBits::eShaderDeviceAddress;
 
-    raygenSBT.InitOnHost(handleSize * rgenCount, usage);
-    missSBT.InitOnHost(handleSize * missCount, usage);
-    hitSBT.InitOnHost(handleSize * hitCount, usage);
+    raygenSBT.Init(usage, handleSize * rgenCount);
+    missSBT.Init(usage, handleSize * missCount);
+    hitSBT.Init(usage, handleSize * hitCount);
 
     raygenRegion = CreateAddressRegion(rtProperties, raygenSBT.GetAddress());
     missRegion = CreateAddressRegion(rtProperties, missSBT.GetAddress());
