@@ -37,7 +37,7 @@ namespace
     }
 }
 
-void Engine::Init()
+void Engine::Init(int i)
 {
     spdlog::info("Engine::Init()");
 
@@ -45,18 +45,20 @@ void Engine::Init()
     inputImage.Init(Window::GetWidth(), Window::GetHeight(), vk::Format::eB8G8R8A8Unorm);
     outputImage.Init(Window::GetWidth(), Window::GetHeight(), vk::Format::eB8G8R8A8Unorm);
 
-    scene = std::make_unique<Scene>("../asset/CornellBox.obj");
-
-    //scene = std::make_unique<Scene>("../asset/mitsuba/mitsuba.obj");
-    //scene->camera.SetPosition({ 0, -0.9, 5 });
-
-    //scene = std::make_unique<Scene>("../asset/fireplace_room/fireplace_room.obj");
-    //scene->camera.SetPosition({ 5.0, -1.0, -1.5 });
-    //scene->camera.SetYaw(90.0f);
-
-    //scene = std::make_unique<Scene>("../asset/sponza/sponza.obj");
-    //scene->camera.SetPosition({ 1.8, -8.9, 0 });
-    //scene->camera.SetYaw(270);
+    if (i == 0) {
+        scene = std::make_unique<Scene>("../asset/CornellBox.obj");
+    } else if (i == 1) {
+        scene = std::make_unique<Scene>("../asset/mitsuba/mitsuba.obj");
+        scene->camera.SetPosition({ 0, -0.9, 5 });
+    } else if (i == 2) {
+        scene = std::make_unique<Scene>("../asset/fireplace_room/fireplace_room.obj");
+        scene->camera.SetPosition({ 5.0, -1.0, -1.5 });
+        scene->camera.SetYaw(90.0f);
+    } else if (i == 3) {
+        scene = std::make_unique<Scene>("../asset/sponza/sponza.obj");
+        scene->camera.SetPosition({ 1.8, -8.9, 0 });
+        scene->camera.SetYaw(270);
+    }
 
     if (useRayAlign) {
         scene->Setup(Window::GetWidth() / 2, Window::GetHeight());

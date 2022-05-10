@@ -6,18 +6,21 @@ int main()
     try {
         spdlog::set_pattern("[%^%l%$] %v");
 
-        Window::Init(2048, 1024, "../asset/Vulkan.png");
-        Vulkan::Init();
-        Window::SetupUI();
-
-        {
-            Engine engine;
-            engine.Init();
-            engine.Run();
+        int input;
+        while (1) {
+            Window::Init(2048, 1024, "../asset/Vulkan.png");
+            Vulkan::Init();
+            Window::SetupUI();
+            std::cin >> input;
+            {
+                Engine engine;
+                engine.Init(input);
+                engine.Run();
+            }
+            Window::Shutdown();
+            Vulkan::Shutdown();
         }
 
-        Window::Shutdown();
-        Vulkan::Shutdown();
     } catch (const std::exception& exception) {
         spdlog::error(exception.what());
     }

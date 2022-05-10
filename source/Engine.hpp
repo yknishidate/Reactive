@@ -24,7 +24,7 @@ struct PushConstants
 class Engine
 {
 public:
-    void Init();
+    void Init(int i = 0);
     void Run();
 
 private:
